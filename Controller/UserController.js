@@ -1,124 +1,85 @@
-import { where } from "sequelize";
-import UserModel from "../Model/UserModel.js";
-export async function IndexCadastro(req, res) {
-  return res.render("cadastro");
+import User from "../Model/UserModel.js";
+
+export async function GetUser(req, res) {
+  const { id } = req.params;
+  const user = await User.findOne({ where: { id } });
+  return res.status(200).json({ user });
 }
 
 export async function CadastroUser(req, res) {
   try {
     const { nome, email, senha } = req.body;
-    if (nome.length <= 2) {
-      const erros = "Seu nome precisa ter pelo menos 3 caractere";
-      req.flash("error", erros);
-      req.session.save(() => {
-        res.redirect("/user");
-      });
-      return;
+
+    if (!nome || !senha || !email) {
+      return res
+        .status(400)
+        .json({ error: "É obrigatorio o envio do nome, email, senha" });
     }
 
-    const VerificarSeEmailExiste = await UserModel.findOne({
+    if (nome.length < 3) {
+      return res
+        .status(400)
+        .json({ error: "Seu nome precisa ter pelo menos 3 caractere" });
+    }
+
+    const emailExiste = await User.findOne({
       where: { email },
     });
-    if (VerificarSeEmailExiste) {
-      const erros = "Já existe uma conta com esse email";
-      req.flash("error", erros);
-      req.session.save(() => {
-        res.redirect("/user");
-      });
-      return;
+
+    if (emailExiste) {
+      return res
+        .status(400)
+        .json({ error: "Já existe uma conta com esse email" });
     }
 
-    if (senha.length <= 6) {
-      const erros = "Sua senha precisa ter 7 ou mais caractere";
-      req.flash("error", erros);
-      req.session.save(() => {
-        res.redirect("/user");
+    const validatorPassowrd =
+      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!%$*&@#])(?:([0-9a-zA-Z!%$*&@#])(?!\1)){8,}$/i;
+    if (!validatorPassowrd.test(senha)) {
+      return res.status(400).json({
+        error:
+          "Senha precisa ter no mínimo 8 caracteres, 1 letra maiúscula no mínimo, 1 número no mínimo, 1 caracter especial no mínimo e não é permitido sequência igual (aa, bb, 44, etc)me, email, senha",
       });
-      return;
     }
 
-    const user = await UserModel.create({ nome, email, senha });
-    req.flash("success", "Usuário criado com sucesso");
-    req.session.save(() => {
-      res.redirect("/login");
-    });
-    return;
+    const user = await User.create({ nome, email, senha });
+
+    return res.status(200).json({ data: { user } });
   } catch (e) {
-    req.flash("error", `Error: ${e}`);
-    req.session.save(() => {
-      res.redirect("/");
-    });
-    return;
+    return res.status(500).json({ error: "Erro interno" });
   }
-}
-
-export async function EditarUserIndex(req, res) {
-  const { id } = req.params;
-  if (id != req.session.usuario.id) {
-    return res.send("ERROR 404");
-  }
-  const user = await UserModel.findOne({
-    where: { id },
-    raw: true,
-    nest: true,
-  });
-  return res.render("atualizarConta", { user });
 }
 
 export async function EditarUser(req, res) {
-  const { nome, email } = req.body;
-  const id = req.session.usuario.id;
-  if (nome.length <= 2) {
-    const erros = "Seu nome precisa ter pelo menos 3 caractere";
-    req.flash("error", erros);
-    req.session.save(() => {
-      res.redirect("/user/" + id);
-    });
-    return;
-  }
+  try {
+    const { nome } = req.body;
+    const id = req.userId;
 
-  const VerificarSeEmailExiste = await UserModel.findOne({
-    where: { email },
-    raw: true,
-    nest: true,
-  });
-  const user = await UserModel.findOne({
-    where: { id },
-    raw: true,
-    nest: true,
-  });
-  if (VerificarSeEmailExiste && VerificarSeEmailExiste.email != user.email) {
-    const erros = "Já existe uma conta com esse email";
-    req.flash("error", erros);
-    req.session.save(() => {
-      res.redirect("/user/" + id);
-    });
-    return;
+    if (!nome) {
+      return res.status(400).json({ error: "É obrigatorio o envio do nome" });
+    }
+
+    if (nome.length < 3) {
+      return res
+        .status(400)
+        .json({ error: "Seu nome precisa ter pelo menos 3 caractere" });
+    }
+
+    const user = await User.update({ nome: nome }, { where: { id } });
+    return res.status(200).json({ message: "Usuario Alterado com sucesso" });
+  } catch (e) {
+    return res.status(500).json({ error: "Erro interno" });
   }
-  await UserModel.update(req.body, { where: { id } });
-  req.flash("success", "Usuário alterado com sucesso");
-  req.session.save(() => {
-    res.redirect("/");
-  });
-  return;
 }
+
 export async function ApagarUser(req, res) {
   const id = parseInt(req.params.id);
-  const idUser = req.session.usuario.id;
+  const idUser = req.userId;
   try {
     if ((id = idUser)) {
-      const user = await UserModel.destroy({ where: { id } });
-      req.flash("success", "Usuario apagado com sucesso");
-      req.session.save(() => {
-        res.redirect("/login");
-      });
-      return;
+      const user = await User.destroy({ where: { id } });
+      return res.status(202).json({ message: "Usuario apagado com sucesso" });
     }
   } catch (e) {
-    req.flash("error", `Error: ${e}`);
-    req.session.save(() => {
-      res.redirect("/");
-    });
-    return;
+    return res.status(500).json({ error: "Erro interno" });
   }
 }

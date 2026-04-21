@@ -10,14 +10,14 @@ import {
   ApagarTransacao,
 } from "./Controller/TransacaoController.js";
 import {
-  IndexCadastro,
   CadastroUser,
-  EditarUserIndex,
   EditarUser,
   ApagarUser,
+  GetUser,
 } from "./Controller/UserController.js";
 import { LoginUser, Logout, refresh } from "./Controller/LoginController.js";
 import LoginRequired from "./Middleware/LoginRequired.js";
+import AuthGuard from "./Middleware/AuthUser.js";
 //Home
 route.get("/", LoginRequired, HomeController);
 
@@ -32,19 +32,14 @@ route.post("/transacao/edit/:id", LoginRequired, EditarTransacao);
 route.delete("/transacao/delete/:id", LoginRequired, ApagarTransacao);
 
 //CRUD User
-route.get("/user", IndexCadastro);
 route.post("/user", CadastroUser);
-route.get("/user/:id", LoginRequired, EditarUserIndex);
-route.post("/user/:id", LoginRequired, EditarUser);
-route.delete("/user/delete/:id", LoginRequired, ApagarUser);
+route.get("/user/:id", LoginRequired, AuthGuard, GetUser);
+route.post("/user/:id", LoginRequired, AuthGuard, EditarUser);
+route.delete("/user/delete/:id", LoginRequired, AuthGuard, ApagarUser);
 
 //LoginUser
 route.post("/login", LoginUser);
 route.get("/logout", LoginRequired, Logout);
 route.post("/refresh", refresh);
-route.get("/teste", LoginRequired, teste);
-export default route;
 
-function teste(req, res) {
-  return res.json("Middleware Funcionando");
-}
+export default route;

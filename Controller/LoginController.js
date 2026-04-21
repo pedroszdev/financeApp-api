@@ -66,6 +66,9 @@ export async function Logout(req, res) {
 export async function refresh(req, res) {
   try {
     const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(400).json({ error: "É obrigatorio o envio do token" });
+    }
     const decoded = verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const userId = decoded.userId;
 
@@ -82,7 +85,7 @@ export async function refresh(req, res) {
 
     const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
     const accesstoken = sign(
-      { userId: user.id }, // payload
+      { userId: userId }, // payload
       JWT_ACCESS_SECRET,
       { expiresIn: "15m" },
     );
