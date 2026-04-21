@@ -1,6 +1,7 @@
 import Transacao from "../Model/TransacaoModel.js";
 import Categoria from "../Model/CategoriaModel.js";
 import { Op } from "sequelize";
+import User from "../Model/UserModel.js";
 
 export async function homeTransacoes(req, res) {
   const { search } = req.query;

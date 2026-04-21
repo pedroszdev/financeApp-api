@@ -27,13 +27,13 @@ route.get("/transacoes", LoginRequired, homeTransacoes);
 //CRUD transacao
 route.post("/transacao", LoginRequired, CadastrarTransacao);
 route.get("/transacao/:id", LoginRequired, GetTransacao);
-route.post("/transacao/edit/:id", LoginRequired, EditarTransacao);
+route.put("/transacao/edit/:id", LoginRequired, EditarTransacao);
 route.delete("/transacao/delete/:id", LoginRequired, ApagarTransacao);
 
 //CRUD User
 route.post("/user", CadastroUser);
 route.get("/user/:id", LoginRequired, AuthGuard, GetUser);
-route.post("/user/:id", LoginRequired, AuthGuard, EditarUser);
+route.put("/user/:id", LoginRequired, AuthGuard, EditarUser);
 route.delete("/user/delete/:id", LoginRequired, AuthGuard, ApagarUser);
 
 //LoginUser

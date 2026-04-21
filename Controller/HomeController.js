@@ -1,7 +1,7 @@
 import Transacao from "../Model/TransacaoModel.js";
 import User from "../Model/UserModel.js";
 export default async function home(req, res) {
-  const user = await User.findOne({ where: { id: 8 } });
+  const user = await User.findOne({ where: { id: req.userId } });
 
   const transacoes = await Transacao.findAll({
     where: {

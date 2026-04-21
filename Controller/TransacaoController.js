@@ -47,7 +47,7 @@ export async function CadastrarTransacao(req, res) {
 
 export async function EditarTransacao(req, res) {
   const id = parseInt(req.params.id);
-
+  const { descricao, valor, tipo, categoria } = req.body;
   try {
     if (isNaN(valor) || valor < 0) {
       return res
@@ -61,7 +61,7 @@ export async function EditarTransacao(req, res) {
         .json({ error: "Descrição deve ter 3 ou mais caractere" });
     }
 
-    const transacao = await Transacao.update(req.body, {
+    const transacao = await Transacao.update({ descricao, valor, tipo, categoria }, {
       where: { id, userId: req.userId },
     });
 
@@ -79,10 +79,11 @@ export async function ApagarTransacao(req, res) {
     if (!transacao) {
       return res.status(400).json({ error: "Transação não existe" });
     }
-    if ((transacao.id = userId)) {
-      await Transacao.destroy({ where: { id } });
-      return res.status(200).json({ message: "Transação apagada com sucesso" });
+    if (transacao.userId !== userId) {
+      return res.status(403).json({ error: "Não autorizado" });
     }
+    await Transacao.destroy({ where: { id } });
+    return res.status(200).json({ message: "Transação apagada com sucesso" });
   } catch (e) {
     return res.status(500).json({ error: "Erro Interno" });
   }

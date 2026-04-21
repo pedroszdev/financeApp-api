@@ -75,7 +75,7 @@ export async function ApagarUser(req, res) {
   const id = parseInt(req.params.id);
   const idUser = req.userId;
   try {
-    if ((id = idUser)) {
+    if ((id === idUser)) {
       const user = await User.destroy({ where: { id } });
       return res.status(202).json({ message: "Usuario apagado com sucesso" });
     }

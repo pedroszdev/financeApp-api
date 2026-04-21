@@ -98,7 +98,7 @@ export async function refresh(req, res) {
     );
 
     await Session.create({
-      userId: user.id,
+      userId: userId,
       token: refreshtoken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
     });
