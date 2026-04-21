@@ -21,12 +21,9 @@
   "homepage": "https://github.com/pedroszdev/Sistema-financero-js#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "connect-flash": "^0.1.1",
     "dotenv": "^17.2.3",
-    "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-bearer-token": "^3.0.0",
-    "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
